@@ -2,29 +2,18 @@ LF    = 0x0a
 
 .section .text
 
-MAIN:
+Main:
     ld  d, -20
-L1_RET:
+L1:
     ld  e, -40
-L2_RET:
+L2:
     ; d goes -20 .. 20 (outer loop)
     ; e goes -40 .. 40 (inner loop)
     push de
 
     ld  b,d
     ld  c,e
-    call CI     ; HL = CI(d,e)
-    
-    ld  de, 1600
-    ex  de, hl  ; de = CI(d,e), HL = 1600
-    xor a       ; clear C flag
-    ld  b,a
-    ld  c,a     ; bc := 0
-    sbc hl, de  ; hl := 1600 - CI(d,e)
-    jp  m, NoFill ; jump if CI(d,e) > 1600
-Fill:
-    inc c
-NoFill:
+    call Circ     ; HL = Circ(d,e)
     ld  hl, PAL
     add hl, bc
     ld  a, (hl)
@@ -35,7 +24,7 @@ NoFill:
     inc e
     ld  a,e
     cp  41
-    jr  NZ, L2_RET
+    jr  NZ, L2
 
     ld  a, LF
     rst 8
@@ -43,34 +32,45 @@ NoFill:
     inc d
     ld  a,d
     cp  21
-    jr  nz, L1_RET
+    jr  nz, L1
 
     ret
 
-; Calculate: B*B*4 + C*C
-; Result in HL
+; Calculate: B*B*4 + C*C <= 1600
+; Result in BC
 ;
 ; Changes: bc, de, hl
-CI:
+Circ:
     ld  a,b
     sla a
-    call absA
+    call AbsA
     ld  h,a ; h,l := 0,b
     ld  e,a
     call Mult8 ; hl := B*B
     push hl
 
     ld  a,c
-    call absA
+    call AbsA
     ld  h,a
     ld  e,a
     call Mult8
 
     pop bc
     add hl, bc
+
+    ld  de, 1600
+    ex  de, hl  ; de = Circ(d,e), HL = 1600
+    xor a       ; clear C flag
+    ld  b,a
+    ld  c,a     ; bc := 0
+    sbc hl, de  ; hl := 1600 - Circ(d,e)
+    jp  m, NoFill ; jump if Circ(d,e) > 1600
+Fill:
+    inc c
+NoFill:
     ret
 
-absA:
+AbsA:
     or  a
     ret p
     neg
@@ -95,5 +95,6 @@ Mult8_NoAdd:
     ret
 
 .section .data
+
 PAL:
     .ascii " #"
