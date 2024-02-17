@@ -42,21 +42,15 @@ L2:
 ; Changes: bc, de, hl
 Circ:
     ld  a,  b
-    sla a
-    call AbsA
-    ld  h,  a   ; h = e = |2*B|
-    ld  e,  a
-    call Mult8  ; hl = B*B*4
+    sla a       ; a = 2*B
+    call SquareA ; hl = B*B*4
     push hl
 
     ld  a,  c
-    call AbsA
-    ld  h,  a
-    ld  e,  a   ; h = e = |c|
-    call Mult8
+    call SquareA ; hl = C*C
 
     pop bc
-    add hl, bc
+    add hl, bc  ; hl = B*B*4 + C*C
 
     ld  de, 1600
     ex  de, hl  ; de = B*B*4 + C*C; hl = 1600
@@ -70,12 +64,14 @@ Fill:
 NoFill:
     ret
 
-AbsA:
+; HL = A*A
+SquareA:
     or  a
-    ret p
+    jp  p, Positive
     neg
-    ret
-
+Positive:
+    ld  h,  a
+    ld  e,  a   ; h = e = |c|
 ; Multiply 8-bit values
 ; In:  Multiply H with E
 ; Out: HL = result
