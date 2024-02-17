@@ -67,9 +67,9 @@ NoFill:
 ; HL = A*A
 SquareA:
     or  a
-    jp  p, Positive
+    jp  p,  SquarePositiveA
     neg
-Positive:
+SquarePositiveA:
     ld  h,  a
     ld  e,  a   ; h = e = |c|
 ; Multiply 8-bit values
