@@ -1,36 +1,36 @@
-LF    = 0x0a
+LF = 0x0a
 
 .section .text
 
 Main:
-    ld  d, -20
+    ld  d,  -20
 L1:
-    ld  e, -40
+    ld  e,  -40
 L2:
     ; d goes -20 .. 20 (outer loop)
     ; e goes -40 .. 40 (inner loop)
     push de
 
-    ld  b,d
-    ld  c,e
-    call Circ     ; HL = Circ(d,e)
+    ld  b,  d
+    ld  c,  e
+    call Circ   ; HL = Circ(d,e)
     ld  hl, PAL
     add hl, bc
-    ld  a, (hl)
+    ld  a,  (hl)
     rst 8
 
     pop de
 
     inc e
-    ld  a,e
+    ld  a,  e
     cp  41
-    jr  NZ, L2
+    jr  nz, L2
 
-    ld  a, LF
+    ld  a,  LF
     rst 8
 
     inc d
-    ld  a,d
+    ld  a,  d
     cp  21
     jr  nz, L1
 
@@ -41,18 +41,18 @@ L2:
 ;
 ; Changes: bc, de, hl
 Circ:
-    ld  a,b
+    ld  a,  b
     sla a
     call AbsA
-    ld  h,a ; h,l := 0,b
-    ld  e,a
-    call Mult8 ; hl := B*B
+    ld  h,  a   ; h,l := 0,b
+    ld  e,  a
+    call Mult8  ; hl := B*B
     push hl
 
-    ld  a,c
+    ld  a,  c
     call AbsA
-    ld  h,a
-    ld  e,a
+    ld  h,  a
+    ld  e,  a
     call Mult8
 
     pop bc
@@ -61,10 +61,10 @@ Circ:
     ld  de, 1600
     ex  de, hl  ; de = Circ(d,e), HL = 1600
     xor a       ; clear C flag
-    ld  b,a
-    ld  c,a     ; bc := 0
+    ld  b,  a
+    ld  c,  a   ; bc := 0
     sbc hl, de  ; hl := 1600 - Circ(d,e)
-    jp  m, NoFill ; jump if Circ(d,e) > 1600
+    jp  m,  NoFill ; jump if Circ(d,e) > 1600
 Fill:
     inc c
 NoFill:
@@ -83,13 +83,13 @@ AbsA:
 ;
 ; Changes: b, d, hl
 Mult8:
-    ld  d,0
-    ld  l,d
-    ld  b,8
+    ld  d,  0
+    ld  l,  d
+    ld  b,  8
 Mult8_Loop:
-    add hl,hl
-    jr  nc,Mult8_NoAdd
-    add hl,de
+    add hl, hl
+    jr  nc, Mult8_NoAdd
+    add hl, de
 Mult8_NoAdd:
     djnz Mult8_Loop
     ret
