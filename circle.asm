@@ -13,7 +13,7 @@ L2:
 
     ld  b,  d
     ld  c,  e
-    call Circ   ; HL = Circ(d,e)
+    call Circ   ; bc = Circ(d,e)
     ld  hl, PAL
     add hl, bc
     ld  a,  (hl)
@@ -44,27 +44,27 @@ Circ:
     ld  a,  b
     sla a
     call AbsA
-    ld  h,  a   ; h,l := 0,b
+    ld  h,  a   ; h = e = |2*B|
     ld  e,  a
-    call Mult8  ; hl := B*B
+    call Mult8  ; hl = B*B*4
     push hl
 
     ld  a,  c
     call AbsA
     ld  h,  a
-    ld  e,  a
+    ld  e,  a   ; h = e = |c|
     call Mult8
 
     pop bc
     add hl, bc
 
     ld  de, 1600
-    ex  de, hl  ; de = Circ(d,e), HL = 1600
+    ex  de, hl  ; de = B*B*4 + C*C; hl = 1600
     xor a       ; clear C flag
     ld  b,  a
-    ld  c,  a   ; bc := 0
-    sbc hl, de  ; hl := 1600 - Circ(d,e)
-    jp  m,  NoFill ; jump if Circ(d,e) > 1600
+    ld  c,  a   ; bc = 0
+    sbc hl, de  ; hl = 1600 - B*B*4 + C*C
+    jp  m,  NoFill ; jump if B*B*4 + C*C > 1600
 Fill:
     inc c
 NoFill:
@@ -76,7 +76,6 @@ AbsA:
     neg
     ret
 
-;
 ; Multiply 8-bit values
 ; In:  Multiply H with E
 ; Out: HL = result
