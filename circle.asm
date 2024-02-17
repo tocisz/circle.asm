@@ -17,17 +17,18 @@ L2_RET:
     
     ld  de, 1600
     ex  de, hl  ; de = CI(d,e), HL = 1600
-    or  a       ; clear C flag
+    xor a       ; clear C flag
+    ld  b,a
+    ld  c,a     ; bc := 0
     sbc hl, de  ; hl := 1600 - CI(d,e)
     jp  m, NoFill ; jump if CI(d,e) > 1600
 Fill:
-    ld  a,'#'
-    rst 8
-    jr  IfEnd
+    inc c
 NoFill:
-    ld  a,' '
+    ld  hl, PAL
+    add hl, bc
+    ld  a, (hl)
     rst 8
-IfEnd:
 
     pop de
 
@@ -92,3 +93,7 @@ Mult8_Loop:
 Mult8_NoAdd:
     djnz Mult8_Loop
     ret
+
+.section .data
+PAL:
+    .ascii " #"
