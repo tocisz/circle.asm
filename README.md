@@ -49,4 +49,4 @@ I was curious how much faster it will be in assembly than in [BASIC](reference/c
                                         #                                        
 ```
 
-Resulting Intel HEX (see releases) has base address `0x8000` and can be run with [SCM](https://smallcomputercentral.com/small-computer-monitor).
+Resulting Intel HEX (see releases) has base address `0x9000`.
