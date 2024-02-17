@@ -1,6 +1,4 @@
-CR    = 0x0d
 LF    = 0x0a
-SPACE = 0x20
 
 .section .text
 
