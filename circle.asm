@@ -55,11 +55,12 @@ Circ:
 
     pop bc
     add hl, bc  ; hl = B*B*4 + C*C
-    ld  (TEMP), hl ; (TEMP) = B*B*4 + C*C
+    ld  a,  h
+    ld  c,  l   ; ac = B*B*4 + C*C
 
     ld  hl, Borders
     ld  b,  BordersCnt
-    xor a       ; clear C flag, set a=0
+    or  a       ; clear C flag
 Loop:
     ld  e, (hl)
     inc hl
@@ -67,14 +68,15 @@ Loop:
     inc hl      ; border in de, index in hl
     ex  de, hl  ; border in hl, index in de
     push bc     ; bc is free to use
-    ld  bc, (TEMP)
+    ld  b,  a   ; bc = B*B*4 + C*C
     sbc hl, bc  ; hl = 1600 - B*B*4 + C*C
     pop bc      ; restore bc
     jp  m,  NoFill ; jump if B*B*4 + C*C > 1600
     ex  de, hl  ; index in hl
-    inc a
     djnz Loop
 NoFill:
+    ld  a, BordersCnt
+    sub b       ; a = BordersCnt - b
     ret
 
 ; HL = A*A
@@ -117,8 +119,3 @@ Borders:
     .word 25
     .word 4
 BordersCnt = (. - Borders)/2
-
-.bss
-
-TEMP:
-    .word 0
