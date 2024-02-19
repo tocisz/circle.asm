@@ -13,9 +13,13 @@ L2:
 
     ld  b,  d
     ld  c,  e
-    call Circ   ; bc = Circ(d,e)
+    call Circ   ; a = Circ(d,e)
+
     ld  hl, PAL
-    add hl, bc
+    ld  b,  0
+    ld  c,  a
+    add hl, bc  ; hl = PAL+a
+
     ld  a,  (hl)
     rst 8
 
@@ -37,7 +41,7 @@ L2:
     ret
 
 ; Calculate: B*B*4 + C*C <= 1600
-; Result in BC
+; Result in A
 ;
 ; Changes: bc, de, hl
 Circ:
@@ -51,69 +55,25 @@ Circ:
 
     pop bc
     add hl, bc  ; hl = B*B*4 + C*C
+    ld  (TEMP), hl ; (TEMP) = B*B*4 + C*C
 
-    ld  (TEMP), hl
-    ; TODO - loop Bordes
-
-    ld  de, 1600
-    ex  de, hl  ; de = B*B*4 + C*C; hl = 1600
-    xor a       ; clear C flag
-    ld  b,  a
-    ld  c,  a   ; bc = 0
-    sbc hl, de  ; hl = 1600 - B*B*4 + C*C
+    ld  hl, Borders
+    ld  b,  BordersCnt
+    xor a       ; clear C flag, set a=0
+Loop:
+    ld  e, (hl)
+    inc hl
+    ld  d, (hl)
+    inc hl      ; border in de, index in hl
+    ex  de, hl  ; border in hl, index in de
+    push bc     ; bc is free to use
+    ld  bc, (TEMP)
+    sbc hl, bc  ; hl = 1600 - B*B*4 + C*C
+    pop bc      ; restore bc
     jp  m,  NoFill ; jump if B*B*4 + C*C > 1600
-;
-    inc c
-    ld  de, (TEMP)
-    ld  hl, 1225
-    xor a
-    sbc hl, de
-    jp  m,  NoFill
-;
-    inc c
-    ld  de, (TEMP)
-    ld  hl, 900
-    xor a
-    sbc hl, de
-    jp  m,  NoFill
-;
-    inc c
-    ld  de, (TEMP)
-    ld  hl, 625
-    xor a
-    sbc hl, de
-    jp  m,  NoFill
-;
-    inc c
-    ld  de, (TEMP)
-    ld  hl, 400
-    xor a
-    sbc hl, de
-    jp  m,  NoFill
-;
-    inc c
-    ld  de, (TEMP)
-    ld  hl, 225
-    xor a
-    sbc hl, de
-    jp  m,  NoFill
-;
-    inc c
-    ld  de, (TEMP)
-    ld  hl, 100
-    xor a
-    sbc hl, de
-    jp  m,  NoFill
-;
-    inc c
-    ld  de, (TEMP)
-    ld  hl, 25
-    xor a
-    sbc hl, de
-    jp  m,  NoFill
-;
-    inc c
-
+    ex  de, hl  ; index in hl
+    inc a
+    djnz Loop
 NoFill:
     ret
 
@@ -155,7 +115,8 @@ Borders:
     .word 225
     .word 100
     .word 25
-    .word 0
+    .word 4
+BordersCnt = (. - Borders)/2
 
 .bss
 
