@@ -40,7 +40,7 @@ L2:
 
     ret
 
-; Calculate: B*B*4 + C*C <= 1600
+; Calculate: Index i in Borders table for which: B*B*4 + C*C <= i
 ; Result in A
 ;
 ; Changes: bc, de, hl
@@ -64,14 +64,14 @@ Circ:
 Loop:
     ld  e, (hl)
     inc hl
-    ld  d, (hl)
+    ld  d, (hl) ; de = (hl++)
     inc hl      ; border in de, index in hl
     ex  de, hl  ; border in hl, index in de
     push bc     ; bc is free to use
     ld  b,  a   ; bc = B*B*4 + C*C
-    sbc hl, bc  ; hl = 1600 - B*B*4 + C*C
+    sbc hl, bc  ; hl = de - B*B*4 + C*C
     pop bc      ; restore bc
-    jp  m,  NoFill ; jump if B*B*4 + C*C > 1600
+    jp  m,  NoFill ; jump if B*B*4 + C*C > de
     ex  de, hl  ; index in hl
     djnz Loop
 NoFill:
