@@ -53,6 +53,8 @@ Circ:
     add hl, bc  ; hl = B*B*4 + C*C
 
     ld  (TEMP), hl
+    ; TODO - loop Bordes
+
     ld  de, 1600
     ex  de, hl  ; de = B*B*4 + C*C; hl = 1600
     xor a       ; clear C flag
@@ -144,6 +146,16 @@ Mult8_NoAdd:
 
 PAL:
     .ascii " .:-=+*%#@"
+Borders:
+    .word 1600
+    .word 1225
+    .word 900
+    .word 625
+    .word 400
+    .word 225
+    .word 100
+    .word 25
+    .word 0
 
 .bss
 
