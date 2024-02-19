@@ -52,6 +52,7 @@ Circ:
     pop bc
     add hl, bc  ; hl = B*B*4 + C*C
 
+    ld  (TEMP), hl
     ld  de, 1600
     ex  de, hl  ; de = B*B*4 + C*C; hl = 1600
     xor a       ; clear C flag
@@ -59,8 +60,58 @@ Circ:
     ld  c,  a   ; bc = 0
     sbc hl, de  ; hl = 1600 - B*B*4 + C*C
     jp  m,  NoFill ; jump if B*B*4 + C*C > 1600
-Fill:
+;
     inc c
+    ld  de, (TEMP)
+    ld  hl, 1225
+    xor a
+    sbc hl, de
+    jp  m,  NoFill
+;
+    inc c
+    ld  de, (TEMP)
+    ld  hl, 900
+    xor a
+    sbc hl, de
+    jp  m,  NoFill
+;
+    inc c
+    ld  de, (TEMP)
+    ld  hl, 625
+    xor a
+    sbc hl, de
+    jp  m,  NoFill
+;
+    inc c
+    ld  de, (TEMP)
+    ld  hl, 400
+    xor a
+    sbc hl, de
+    jp  m,  NoFill
+;
+    inc c
+    ld  de, (TEMP)
+    ld  hl, 225
+    xor a
+    sbc hl, de
+    jp  m,  NoFill
+;
+    inc c
+    ld  de, (TEMP)
+    ld  hl, 100
+    xor a
+    sbc hl, de
+    jp  m,  NoFill
+;
+    inc c
+    ld  de, (TEMP)
+    ld  hl, 25
+    xor a
+    sbc hl, de
+    jp  m,  NoFill
+;
+    inc c
+
 NoFill:
     ret
 
@@ -92,4 +143,9 @@ Mult8_NoAdd:
 .section .data
 
 PAL:
-    .ascii " #"
+    .ascii " .:-=+*%#@"
+
+.bss
+
+TEMP:
+    .word 0
