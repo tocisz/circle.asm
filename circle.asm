@@ -1,11 +1,16 @@
 LF  = 10
 ESC = 27
 
+INT_TX = 8
+
 .section .text
 
 Main:
-    call Cls
-    call CursorHide
+    ld  hl, Cls
+    call Print
+    ld  hl, CursorHide
+    call Print
+    call InitSquares
     ld  d,  -20
 L1:
     ld  e,  -40
@@ -24,7 +29,7 @@ L2:
     add hl, bc  ; hl = PAL+a
 
     ld  a,  (hl)
-    rst 8
+    rst INT_TX
 
     pop de
 
@@ -34,14 +39,15 @@ L2:
     jr  nz, L2
 
     ld  a,  LF
-    rst 8
+    rst INT_TX
 
     inc d
     ld  a,  d
     cp  21
     jr  nz, L1
 
-    call CursorShow
+    ld  hl, CursorShow
+    call Print
     ret
 
 ; Calculate: Index i in Borders table for which: B*B*4 + C*C <= i
@@ -82,64 +88,52 @@ SquareA:
     jp  p,  SquarePositiveA
     neg
 SquarePositiveA:
-    ld  h,  a
-    ld  e,  a   ; h = e = |c|
-; Multiply 8-bit values
-; In:  Multiply H with E
-; Out: HL = result
-;
-; Changes: b, d, hl
-Mult8:
+    cp  MAX_SQUARE
+    jp  p, SquareOOR
+    ld  hl, Squares
+    sla a
     ld  d,  0
-    ld  l,  d
-    ld  b,  8
-Mult8_Loop:
-    add hl, hl
-    jr  nc, Mult8_NoAdd
+    ld  e,  a
     add hl, de
-Mult8_NoAdd:
-    djnz Mult8_Loop
+    ld  e,  (hl)
+    inc hl
+    ld  d,  (hl)
+    ex  de, hl
+    ret
+SquareOOR:
+    ld  hl, MAX_SQUARE*MAX_SQUARE
     ret
 
-Csi:
-    ld  a,  ESC
-    rst 8
-    ld  a,  '['
-    rst 8
-    ret
+Print:
+    ld  a,  (hl)    ; get character
+    or  a           ; is it $00 ?
+    ret z           ; then return on terminator
+    rst INT_TX      ; output character in a
+    inc hl          ; next character
+    jp  Print       ; continue until $00
 
-Cls:
-    call Csi
-    ld  a,  '2'
-    rst 8
-    ld  a,  'J'
-    rst 8
-    call Csi
-    ld  a,  'H'
-    rst 8
-    ret
-
-CursorEsc:
-    call Csi
-    ld  a,  '?'
-    rst 8
-    ld  a,  '2'
-    rst 8
-    ld  a,  '5'
-    rst 8
-    ret
-
-CursorHide:
-    call CursorEsc
-    ld  a,  'l'
-    rst 8
-    ret
-
-CursorShow:
-    call CursorEsc
-    ld  a,  'h'
-    rst 8
-    ret
+; memorize squares, because multiplication is expensive
+InitSquares:
+    ld  hl, Squares ; hl is write pointer
+    ld  d, 0
+    ld  e, d ; de is cumulative sum
+    ld  b, d
+    ld  c, d ; bc is double index
+    ld  a, MAX_SQUARE+1 ; a is loop counter
+InitSquaresL:
+    ld  (hl), e
+    inc hl
+    ld  (hl), d ; *(hl++) = de
+    dec a
+    ret z       ; break if --a == 0
+    inc hl
+    ex  de, hl
+    add hl, bc
+    inc hl
+    ex  de, hl ; de = *hl + c + 1
+    inc c
+    inc c       ; c += 2
+    jr  InitSquaresL
 
 
 .section .data
@@ -158,7 +152,23 @@ Borders:
     .word 4
 BordersCnt = (. - Borders)/2
 
+Cls:
+    .byte  ESC
+    .ascii "[2J"
+    .byte  ESC
+    .asciz "[H"
+CursorHide:
+    .byte  ESC
+    .asciz "[?25l"
+CursorShow:
+    .byte  ESC
+    .asciz "[?25h"
+
 .section .bbs
 
 TEMP:
     .word 0
+MAX_SQUARE = 40
+SquaresCnt = MAX_SQUARE
+Squares:
+    .skip 2*(MAX_SQUARE+1)  ; lookup table for squares
