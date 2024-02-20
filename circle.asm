@@ -1,8 +1,11 @@
-LF = 0x0a
+LF  = 10
+ESC = 27
 
 .section .text
 
 Main:
+    call Cls
+    call CursorHide
     ld  d,  -20
 L1:
     ld  e,  -40
@@ -38,6 +41,7 @@ L2:
     cp  21
     jr  nz, L1
 
+    call CursorShow
     ret
 
 ; Calculate: Index i in Borders table for which: B*B*4 + C*C <= i
@@ -96,6 +100,47 @@ Mult8_Loop:
 Mult8_NoAdd:
     djnz Mult8_Loop
     ret
+
+Csi:
+    ld  a,  ESC
+    rst 8
+    ld  a,  '['
+    rst 8
+    ret
+
+Cls:
+    call Csi
+    ld  a,  '2'
+    rst 8
+    ld  a,  'J'
+    rst 8
+    call Csi
+    ld  a,  'H'
+    rst 8
+    ret
+
+CursorEsc:
+    call Csi
+    ld  a,  '?'
+    rst 8
+    ld  a,  '2'
+    rst 8
+    ld  a,  '5'
+    rst 8
+    ret
+
+CursorHide:
+    call CursorEsc
+    ld  a,  'l'
+    rst 8
+    ret
+
+CursorShow:
+    call CursorEsc
+    ld  a,  'h'
+    rst 8
+    ret
+
 
 .section .data
 
