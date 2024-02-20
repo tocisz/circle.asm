@@ -11,6 +11,12 @@ Main:
     ld  hl, CursorHide
     call Print
     call InitSquares
+    call Draw
+    ld  hl, CursorShow
+    call Print
+    ret
+
+Draw:
     ld  d,  -20
 L1:
     ld  e,  -40
@@ -18,21 +24,21 @@ L2:
     ; d goes -20 .. 20 (outer loop)
     ; e goes -40 .. 40 (inner loop)
     push de
-
+;
     ld  b,  d
     ld  c,  e
     call Circ   ; a = Circ(d,e)
-
+;
     ld  hl, PAL
     ld  b,  0
     ld  c,  a
     add hl, bc  ; hl = PAL+a
-
+;
     ld  a,  (hl)
     rst INT_TX
-
+;
     pop de
-
+;
     inc e
     ld  a,  e
     cp  41
@@ -40,14 +46,12 @@ L2:
 
     ld  a,  LF
     rst INT_TX
-
+;
     inc d
     ld  a,  d
     cp  21
     jr  nz, L1
-
-    ld  hl, CursorShow
-    call Print
+;
     ret
 
 ; Calculate: Index i in Borders table for which: B*B*4 + C*C <= i
@@ -59,14 +63,14 @@ Circ:
     sla a       ; a = 2*B
     call SquareA ; hl = B*B*4
     push hl
-
+;
     ld  a,  c
     call SquareA ; hl = C*C
-
+;
     pop bc
     add hl, bc  ; hl = B*B*4 + C*C
     ex  de, hl  ; de = B*B*4 + C*C
-
+;
     ld  (TEMP), sp
     ld  sp, Borders
     ld  b,  BordersCnt
