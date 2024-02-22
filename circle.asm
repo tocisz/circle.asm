@@ -2,18 +2,95 @@ LF  = 10
 ESC = 27
 
 INT_TX = 8
+INT_RX = 16
 
 .section .text
 
 Main:
     ld  hl, Cls
     call Print
+
     ld  hl, CursorHide
     call Print
+
     call InitSquares
+
+    xor a
+    ld  (Direction), a
+    ld  (Count), a
+MainLoop:
     call Draw
+    call HasInput
+    jr  nz,  Exit
+
+    ld  a,  (Count)
+    or  a
+    jr  nz, Countdown   ; if Count == 0
+    ld  a, (Direction)
+    xor -1
+    ld  (Direction), a  ; negate direction
+    ld  a,  4
+    ld  (Count), a      ; set count to 4
+    jr  Scale
+Countdown:
+    dec a
+    ld  (Count), a      ; --count
+Scale:
+    call Debug
+    ld  a,  (Direction)
+    or  a
+    call z,  ScaleDown
+    call nz, ScaleUp
+
+    ld  hl, GoHome
+    call Print
+
+    jr  MainLoop
+
+Exit:
     ld  hl, CursorShow
     call Print
+    ret
+
+Debug:
+    ld  a, LF
+    rst INT_TX
+    ld  a, (Count)
+    add a, '0'
+    rst INT_TX
+    ld  a, (Direction)
+    or  a
+    jr  z, DebugDown
+    ld  a, 'U'
+    rst INT_TX
+    jr  DebugRet
+DebugDown:
+    ld  a, 'D'
+    rst INT_TX
+DebugRet:
+    rst INT_RX
+    ret
+
+ScaleUp:
+    ld  hl, Borders
+    ld  b,  BordersCnt
+ScaleUpLoop:
+    sla (hl)
+    inc hl
+    rl  (hl)
+    inc hl
+    djnz ScaleUpLoop
+    ret
+
+ScaleDown:
+    ld  hl, Borders + 2*BordersCnt
+    ld  b,  BordersCnt
+ScaleDownLoop:
+    dec hl
+    srl (hl)
+    dec hl
+    rr  (hl)
+    djnz ScaleDownLoop
     ret
 
 Draw:
@@ -139,6 +216,11 @@ InitSquaresL:
     inc c       ; c += 2
     jr  InitSquaresL
 
+; NZ if char avail
+HasInput:
+    ld  c,  3
+    rst 0x30
+    ret
 
 .section .data
 
@@ -159,6 +241,7 @@ BordersCnt = (. - Borders)/2
 Cls:
     .byte  ESC
     .ascii "[2J"
+GoHome:
     .byte  ESC
     .asciz "[H"
 CursorHide:
@@ -172,6 +255,10 @@ CursorShow:
 
 TEMP:
     .word 0
+Direction:
+    .byte 1 ; 0 or -1
+Count:
+    .byte 0
 MAX_SQUARE = 40
 SquaresCnt = MAX_SQUARE
 Squares:
