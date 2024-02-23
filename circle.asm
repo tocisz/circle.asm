@@ -3,6 +3,9 @@ ESC = 27
 
 INT_TX = 8
 INT_RX = 16
+INT_SCM_API = 0x30
+
+SCM_API_InputStatus = 3
 
 .section .text
 
@@ -199,8 +202,8 @@ InitSquaresL:
 
 ; NZ if char avail
 HasInput:
-    ld  c,  3
-    rst 0x30
+    ld  c,  SCM_API_InputStatus
+    rst INT_SCM_API
     ret
 
 .section .data
