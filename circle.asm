@@ -29,17 +29,17 @@ MainLoop:
     ld  a, (Direction)
     xor -1
     ld  (Direction), a  ; negate direction
-    ld  a,  4
+    ld  a,  3
     ld  (Count), a      ; set count to 4
     jr  Scale
 Countdown:
     dec a
     ld  (Count), a      ; --count
 Scale:
-    call Debug
     ld  a,  (Direction)
     or  a
     call z,  ScaleDown
+    or  a   ; flags need to be calculated again
     call nz, ScaleUp
 
     ld  hl, GoHome
@@ -50,25 +50,6 @@ Scale:
 Exit:
     ld  hl, CursorShow
     call Print
-    ret
-
-Debug:
-    ld  a, LF
-    rst INT_TX
-    ld  a, (Count)
-    add a, '0'
-    rst INT_TX
-    ld  a, (Direction)
-    or  a
-    jr  z, DebugDown
-    ld  a, 'U'
-    rst INT_TX
-    jr  DebugRet
-DebugDown:
-    ld  a, 'D'
-    rst INT_TX
-DebugRet:
-    rst INT_RX
     ret
 
 ScaleUp:
@@ -256,7 +237,7 @@ CursorShow:
 TEMP:
     .word 0
 Direction:
-    .byte 1 ; 0 or -1
+    .byte 0 ; 0 or -1
 Count:
     .byte 0
 MAX_SQUARE = 40
