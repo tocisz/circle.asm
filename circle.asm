@@ -181,7 +181,7 @@ InitSquares:
     ld  e, d ; de is cumulative sum
     ld  b, d
     ld  c, d ; bc is double index
-    ld  a, MAX_SQUARE+1 ; a is loop counter
+    ld  a, SquaresCnt ; a is loop counter
 InitSquaresL:
     ld  (hl), e
     inc hl
@@ -241,6 +241,6 @@ Direction:
 Count:
     .byte 0
 MAX_SQUARE = 40
-SquaresCnt = MAX_SQUARE
+SquaresCnt = MAX_SQUARE+1
 Squares:
-    .skip 2*(MAX_SQUARE+1)  ; lookup table for squares
+    .skip 2*SquaresCnt  ; lookup table for squares
