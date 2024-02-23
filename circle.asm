@@ -9,12 +9,12 @@ INT_RX = 16
 Main:
     ld  hl, Cls
     call Print
-
+;
     ld  hl, CursorHide
     call Print
-
+;
     call InitSquares
-
+;
     xor a
     ld  (Direction), a
     ld  (Count), a
@@ -22,7 +22,7 @@ MainLoop:
     call Draw
     call HasInput
     jr  nz,  Exit
-
+;
     ld  a,  (Count)
     or  a
     jr  nz, Countdown   ; if Count == 0
@@ -41,12 +41,12 @@ Scale:
     call z,  ScaleDown
     or  a   ; flags need to be calculated again
     call nz, ScaleUp
-
+;
     ld  hl, GoHome
     call Print
-
+;
     jr  MainLoop
-
+;
 Exit:
     ld  hl, CursorShow
     call Print
