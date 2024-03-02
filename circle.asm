@@ -17,6 +17,7 @@ Main:
     call Print
 ;
     call InitSquares
+    call FillBorders
 ;
     xor a
     ld  (Direction), a
@@ -208,19 +209,26 @@ HasInput:
 
 .section .data
 
+FillBorders:
+    ld  bc, 2*BordersCnt
+    ld  de, Borders
+    ld  hl, BordersRO
+    ldir
+    ret
+
 PAL:
     .ascii " .:-=+*%#@"
-Borders:
-    .word 1600
-    .word 1225
-    .word 900
-    .word 625
-    .word 400
-    .word 225
-    .word 100
-    .word 25
-    .word 4
-BordersCnt = (. - Borders)/2
+BordersRO:
+    .word 1600  ; 40
+    .word 1225  ; 35
+    .word 900   ; 30
+    .word 625   ; 25
+    .word 400   ; 20
+    .word 225   ; 15
+    .word 100   ; 10
+    .word 25    ; 5
+    .word 4     ; 2
+BordersCnt = (. - BordersRO)/2
 
 Cls:
     .byte  ESC
@@ -247,3 +255,5 @@ MAX_SQUARE = 40
 SquaresCnt = MAX_SQUARE+1
 Squares:
     .skip 2*SquaresCnt  ; lookup table for squares
+Borders:
+    .skip 2*BordersCnt
