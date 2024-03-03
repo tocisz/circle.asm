@@ -31,7 +31,7 @@ MainLoop:
     or  a
     jr  nz, Countdown   ; if Count == 0
     ld  a, (Direction)
-    xor -1
+    cpl
     ld  (Direction), a  ; negate direction
     ld  a,  3
     ld  (Count), a      ; set count to 4
