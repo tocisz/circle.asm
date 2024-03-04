@@ -53,8 +53,7 @@ Scale:
 ;
 Exit:
     ld  hl, CursorShow
-    call Print
-    ret
+    jp Print    ; call and ret -> jump
 
 ScaleUp:
     ld  hl, Borders
@@ -133,7 +132,8 @@ Circ:
     add hl, bc  ; hl = B*B*4 + C*C
     ex  de, hl  ; de = B*B*4 + C*C
 ;
-    ld  (TEMP), sp
+    ld  ix, 0
+    add ix, sp  ; ix = sp
     ld  sp, Borders
     ld  b,  BordersCnt
     or  a       ; clear C flag
@@ -143,7 +143,7 @@ Loop:
     jp  m,  LoopEnd ; jump if B*B*4 + C*C > border
     djnz Loop
 LoopEnd:
-    ld  sp, (TEMP)
+    ld  sp, ix  ; restore sp
     ld  a, BordersCnt
     sub b       ; a = BordersCnt - b
     ret
@@ -245,8 +245,6 @@ CursorShow:
 
 .section .bbs
 
-TEMP:
-    .word 0
 Direction:
     .byte 0 ; 0 or -1
 Count:
