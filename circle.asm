@@ -207,14 +207,14 @@ HasInput:
     rst INT_SCM_API
     ret
 
-.section .data
-
 FillBorders:
     ld  bc, 2*BordersCnt
     ld  de, Borders
     ld  hl, BordersRO
     ldir
     ret
+
+.section .data
 
 PAL:
     .ascii " .:-=+*%#@"
